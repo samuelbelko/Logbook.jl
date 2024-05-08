@@ -13,20 +13,18 @@ export new_logdata_df,
 Internally, the log data is managed by having a dataframe intialized with the following columns:
 
     timestamp=DateTime[] 
-    duration=Minute[]
     event=String[] 
     description=String[]
 """
 const DF_TYPES = Dict(
     :timestamp => DateTime,
-    :duration => Minute,
     :event => String,
     :description => String,
 )
 """
 Order of the columns.
 """
-const COLUMNNAMES = [:timestamp, :duration, :event, :description]
+const COLUMNNAMES = [:timestamp, :event, :description]
 """
     new_logdata_df()
 
@@ -58,11 +56,10 @@ end
 function add_entry!(
     df;
     timestamp = now(),
-    duration = Minute(0),
     event = "",
     description = "",
 )
-    return push!(df, (timestamp, duration, event, description))
+    return push!(df, (timestamp, event, description))
 end
 
 function interactive_add_entry!(df, logdata_path = "./logdata.csv")
@@ -81,20 +78,6 @@ function interactive_add_entry!(df, logdata_path = "./logdata.csv")
             println("Incorrect input. Try again. Exception: $e")
         end
     end
-    duration_entry = Minute(0)
-    while true
-        print("Enter duration: ")
-        duration = readline()
-        # pressing enter defaults to 0 minutes
-        duration == "" && break
-        try
-            duration_entry = Minutes(parse(Int, duration))
-            break
-        catch e
-            println("Incorrect input. Try again. Exception: $e")
-        end
-    end
-
     print("Enter event: ")
     event_entry = readline()
     print("Enter description: ")
@@ -103,11 +86,10 @@ function interactive_add_entry!(df, logdata_path = "./logdata.csv")
     add_entry!(
         df;
         timestamp = timestamp_entry,
-        duration = duration_entry,
         event = event_entry,
         description = description_entry,
     )
-    return println("An entry was added.")
+    return printstyled("An entry was added.", italic=true)
 end
 
 end
