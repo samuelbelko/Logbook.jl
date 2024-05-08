@@ -17,7 +17,7 @@ Internally, the log data is managed by having a dataframe intialized with the fo
     event=String[] 
     description=String[]
 """
-const DF_TYPES =
+const DF_COLUMN_TYPES =
     Dict(:timestamp => DateTime, :event => String, :description => String)
 """
 Order of the columns.
@@ -26,19 +26,29 @@ const COLUMNNAMES = [:timestamp, :event, :description]
 """
     new_logdata_df()
 
-Create a dataframe with the column names from constant `DF_TYPES` and empty vector with 
-corresponding types.
+Create a dataframe with the column names from constant `DF_COLUMN_TYPES`, assign the column values
+to an empty vector of the corresponding column types.
 """
 function new_logdata_df()
     # construct from a vector of pairs to maintain the same order
     return DataFrame([
-        column => Vector{DF_TYPES[column]}() for column in COLUMNNAMES
+        column => Vector{DF_COLUMN_TYPES[column]}() for column in COLUMNNAMES
     ])
 end
 
+"""
+    save_logdata(df, logdata_path = "./logdata.csv") 
+
+Save `df` dataframe as a CSV file at path `logdata_path`.
+"""
 save_logdata(df, logdata_path = "./logdata.csv") = CSV.write(logdata_path, df)
+"""
+    load_logdata(logdata_path = "./logdata.csv")
+
+Load dataframe from `logdata_path` and parse the columns according to the constant `COLUMNNAMES`.
+"""
 function load_logdata(logdata_path = "./logdata.csv")
-    return CSV.read(logdata_path, DataFrame; types = DF_TYPES)
+    return CSV.read(logdata_path, DataFrame; types = DF_COLUMN_TYPES)
 end
 
 """
@@ -55,6 +65,11 @@ function add_entry!(df; timestamp = now(), event = "", description = "")
     return push!(df, (timestamp, event, description))
 end
 
+"""
+    interactive_add_entry!(df)
+
+Asking for user input that is than added into a data frame `df`.
+"""
 function interactive_add_entry!(df)
     timestamp_entry = now()
     while true
@@ -103,7 +118,12 @@ function interactive_add_entry!(df)
     end
 end
 
-function app!(df)
+"""
+    app!(df, logdata_path)
+
+An infinite loop asking for new entries and finally saving them to disk.
+"""
+function app!(df, logdata_path)
     while true
         try
             printstyled(
@@ -118,11 +138,16 @@ function app!(df)
                 break
             end
         finally
-            save_logdata(df)
+            save_logdata(df, logdata_path)
         end
     end
 end
 
+"""
+    get_breakfast_times(df)
+
+Extract timestamps of rows that contain the word 'breakfast' in the event column.
+"""
 function get_breakfast_times(df)
     # create a new copy
     return filter(
