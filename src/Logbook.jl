@@ -84,7 +84,11 @@ function interactive_add_entry!(df)
     print("> ")
     description_entry = readline()
 
-    printstyled("Add the above entry? [press n for no]\n"; italic = true, underline=true)
+    printstyled(
+        "Add the above entry? [press n for no]\n";
+        italic = true,
+        underline = true,
+    )
     print("> ")
     if readline() == "n"
         return
@@ -121,13 +125,23 @@ end
 
 function get_breakfast_times(df)
     # create a new copy
-    return filter(c -> !(c.event isa Missing) && contains(c.event, "breakfast"), df )[:,:timestamp]
+    return filter(
+        c -> !(c.event isa Missing) && contains(c.event, "breakfast"),
+        df,
+    )[
+        :,
+        :timestamp,
+    ]
 end
 
 function plot_breakfast_times(df)
-    breakfast_times = get_breakfast_times(df) 
-    minutes_from_midnight = [ 60*hour(t) + minute(t) for t in breakfast_times]
-    scatterplot(1:length(breakfast_times), minutes_from_midnight, title="Minutes from midnight to breakfast")
+    breakfast_times = get_breakfast_times(df)
+    minutes_from_midnight = [60 * hour(t) + minute(t) for t in breakfast_times]
+    return scatterplot(
+        1:length(breakfast_times),
+        minutes_from_midnight;
+        title = "Minutes sfrom midnight to breakfast",
+    )
 end
 
 end
