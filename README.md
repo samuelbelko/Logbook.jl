@@ -1,5 +1,3 @@
-# Logbook
+# Logbook.jl
 
-[![Build Status](https://github.com/samuelbelko/Logbook.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/samuelbelko/Logbook.jl/actions/workflows/CI.yml?query=branch%3Amain)
-
-Use this package to log day-to-day events in an interactive way.
+`Logbook.jl` is a small utility package with a terminal interface that helps me quickly log daily events with time stamps. It is just adding rows into a data frame that is saved to and loaded from a CSV file.
