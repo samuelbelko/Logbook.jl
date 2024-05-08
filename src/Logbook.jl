@@ -79,10 +79,17 @@ function interactive_add_entry!(df)
         # pressing enter defaults to now()
         timestamp == "" && break
         try
-            h, m = parse.(Int, split(timestamp, ":"))
-            timestamp_entry =
-                DateTime(year(today()), month(today()), day(today()), h, m)
-            break
+            # entering -x means `now() - x`, `x` is in minutes
+            if contains(timestamp, "-")
+                m = parse(Int, timestamp)
+                timestamp_entry = now() + Minute(m)
+                break
+            else
+                h, m = parse.(Int, split(timestamp, ":"))
+                timestamp_entry =
+                    DateTime(year(today()), month(today()), day(today()), h, m)
+                break
+            end
         catch e
             println("Incorrect input. Try again. Exception: $e")
         end
