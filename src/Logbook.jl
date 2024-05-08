@@ -1,13 +1,13 @@
 module Logbook
 
 using DataFrames, CSV, Dates
-
 export new_logdata_df,
     add_entry!,
     save_logdata,
     load_logdata,
     new_logdata_file,
-    interactive_add_entry!
+    interactive_add_entry!,
+    app!
 
 """
 Internally, the log data is managed by having a dataframe intialized with the following columns:
@@ -16,11 +16,8 @@ Internally, the log data is managed by having a dataframe intialized with the fo
     event=String[] 
     description=String[]
 """
-const DF_TYPES = Dict(
-    :timestamp => DateTime,
-    :event => String,
-    :description => String,
-)
+const DF_TYPES =
+    Dict(:timestamp => DateTime, :event => String, :description => String)
 """
 Order of the columns.
 """
@@ -53,19 +50,15 @@ function new_logdata_file(logdata_path = "./logdata.csv")
     return save_logdata(df, logdata_path)
 end
 
-function add_entry!(
-    df;
-    timestamp = now(),
-    event = "",
-    description = "",
-)
+function add_entry!(df; timestamp = now(), event = "", description = "")
     return push!(df, (timestamp, event, description))
 end
 
-function interactive_add_entry!(df, logdata_path = "./logdata.csv")
+function interactive_add_entry!(df)
     timestamp_entry = now()
     while true
-        print("Enter timestamp: ")
+        printstyled("Enter timestamp: \n"; italic = true)
+        print("> ")
         timestamp = readline()
         # pressing enter defaults to now()
         timestamp == "" && break
@@ -78,18 +71,51 @@ function interactive_add_entry!(df, logdata_path = "./logdata.csv")
             println("Incorrect input. Try again. Exception: $e")
         end
     end
-    print("Enter event: ")
-    event_entry = readline()
-    print("Enter description: ")
+    event_entry = ""
+    while true
+        printstyled("Enter event: \n"; italic = true)
+        print("> ")
+        event_entry = readline()
+        event_entry == "" ?
+        println("Event is not allowed to be empty, try again.") : break
+    end
+    printstyled("Enter description: \n"; italic = true)
+    print("> ")
     description_entry = readline()
 
-    add_entry!(
-        df;
-        timestamp = timestamp_entry,
-        event = event_entry,
-        description = description_entry,
-    )
-    return printstyled("An entry was added.", italic=true)
+    printstyled("Add the above entry? [press n for no]\n"; italic = true, underline=true)
+    print("> ")
+    if readline() == "n"
+        return
+    else
+        add_entry!(
+            df;
+            timestamp = timestamp_entry,
+            event = event_entry,
+            description = description_entry,
+        )
+        printstyled("Added."; italic = true)
+    end
+end
+
+function app!(df)
+    while true
+        try
+            printstyled(
+                "\n" * "-"^20 * " Add new entry " * "-"^20 * "\n";
+                bold = true,
+            )
+            interactive_add_entry!(df)
+            printstyled("\n \n")
+        catch e
+            if e isa InterruptException
+                println("\n\nExiting the interative logbook interface.")
+                break
+            end
+        finally
+            save_logdata(df)
+        end
+    end
 end
 
 end
