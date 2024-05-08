@@ -1,13 +1,14 @@
 module Logbook
 
-using DataFrames, CSV, Dates
+using DataFrames, CSV, Dates, UnicodePlots
 export new_logdata_df,
     add_entry!,
     save_logdata,
     load_logdata,
     new_logdata_file,
     interactive_add_entry!,
-    app!
+    app!,
+    plot_breakfast_times
 
 """
 Internally, the log data is managed by having a dataframe intialized with the following columns:
@@ -116,6 +117,17 @@ function app!(df)
             save_logdata(df)
         end
     end
+end
+
+function get_breakfast_times(df)
+    # create a new copy
+    return filter(c -> !(c.event isa Missing) && contains(c.event, "breakfast"), df )[:,:timestamp]
+end
+
+function plot_breakfast_times(df)
+    breakfast_times = get_breakfast_times(df) 
+    minutes_from_midnight = [ 60*hour(t) + minute(t) for t in breakfast_times]
+    scatterplot(1:length(breakfast_times), minutes_from_midnight, title="Minutes from midnight to breakfast")
 end
 
 end
