@@ -1,0 +1,13 @@
+name = "Logbook"
+uuid = "fd644d08-8cbd-4b68-b4a5-5b6c037d3641"
+authors = ["Samuel Belko <samuelbelko@protonmail.com> and contributors"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
