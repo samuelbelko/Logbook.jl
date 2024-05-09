@@ -1,14 +1,14 @@
 module Logbook
 
-using DataFrames, CSV, Dates, UnicodePlots
+using DataFrames, CSV, Dates
+
 export new_logdata_df,
-    add_entry!,
+    new_logdata_file,
     save_logdata,
     load_logdata,
-    new_logdata_file,
+    add_entry!,
     interactive_add_entry!,
-    app!,
-    plot_breakfast_times
+    app!
 
 """
 Internally, the log data is managed by having a dataframe intialized with the following columns:
@@ -45,7 +45,7 @@ save_logdata(df, logdata_path = "./logdata.csv") = CSV.write(logdata_path, df)
 """
     load_logdata(logdata_path = "./logdata.csv")
 
-Load dataframe from `logdata_path` and parse the columns according to the constant `COLUMNNAMES`.
+Load dataframe from `logdata_path` and parse the columns according to the constant `DF_COLUMN_TYPES`.
 """
 function load_logdata(logdata_path = "./logdata.csv")
     return CSV.read(logdata_path, DataFrame; types = DF_COLUMN_TYPES)
@@ -126,11 +126,15 @@ function interactive_add_entry!(df)
 end
 
 """
-    app!(df, logdata_path)
+    app!(logdata_path)
 
-An infinite loop asking for new entries and finally saving them to disk.
+An infinite loop asking for new entries to add to a data frame loaded from a CSV file at 
+`logdata_path` and finally saving it to disk.
+
+Exit the loop via `Ctrl + c`.
 """
-function app!(df, logdata_path)
+function app!(logdata_path)
+    df = load_logdata(logdata_path)
     while true
         try
             printstyled(
@@ -148,32 +152,6 @@ function app!(df, logdata_path)
             save_logdata(df, logdata_path)
         end
     end
-end
-
-"""
-    get_breakfast_times(df)
-
-Extract timestamps of rows that contain the word 'breakfast' in the event column.
-"""
-function get_breakfast_times(df)
-    # create a new copy
-    return filter(
-        c -> !(c.event isa Missing) && contains(c.event, "breakfast"),
-        df,
-    )[
-        :,
-        :timestamp,
-    ]
-end
-
-function plot_breakfast_times(df)
-    breakfast_times = get_breakfast_times(df)
-    minutes_from_midnight = [60 * hour(t) + minute(t) for t in breakfast_times]
-    return scatterplot(
-        1:length(breakfast_times),
-        minutes_from_midnight;
-        title = "Minutes sfrom midnight to breakfast",
-    )
 end
 
 end
