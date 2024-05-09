@@ -68,7 +68,13 @@ end
 """
     interactive_add_entry!(df)
 
-Asking for user input that is than added into a data frame `df`.
+Asking for user input that is added to a data frame `df`.
+
+If the timestamp input is empty, it defaults to the current timestamp. Passing a negative integer `t`
+decreases the current timestamp by `|t|` minutes. Passing `hh:mm` sets the day to today and 
+hours to `hh` and minutes to `mm`. Omiting the first digit in `hh` or `mm` sets it to `0`.
+
+An event entry is not allowed to be empty.
 """
 function interactive_add_entry!(df)
     timestamp_entry = now()
@@ -131,7 +137,8 @@ end
 An infinite loop asking for new entries to add to a data frame loaded from a CSV file at 
 `logdata_path` and finally saving it to disk.
 
-Exit the loop via `Ctrl + c`.
+Exit the loop via `Ctrl + c`. Please see [`interactive_add_entry`](@ref), for how the inputs 
+are handeled.
 """
 function app!(logdata_path)
     df = load_logdata(logdata_path)
